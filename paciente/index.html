@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente</title>
+    <script src="rest.js"></script>  
+    <script src="rpc.js"></script>   
+    <script src="main.js"></script> 
+    <style>
+        .seccion{display: none;}
+        .activa{display: block;}
+    </style>
+    
+
+</head>
+<body>
+    <h1 id="aplicacion">App Paciente</h1>
+    <div id="loginPaciente" class="seccion activa">
+        <h2>Login</h2>
+        <p class="bienvenida"></p>
+        <div>Codigo de acceso: <input id="codigo_acceso"/></div>
+        <button onclick="entrar()">Entrar</button> 
+    </div>
+    <div id="menu-paciente" class="seccion">
+        <div id="bienvenida_paciente"></div>
+        <div id="anyadirmuestra"></div>
+        <div id="mismuestras"></div>
+        <div id="filtromuestras"></div>
+    </br>
+        <div><button onclick="salir()">Salir</button></div>
+    </div>
+    <div id="modificar-muestra" class="seccion">
+        <h2>Modificar muestra</h2>
+        <ul>
+            <li>
+                <h3>Variable Muestra</h3>
+                <form>
+                <select id="varMod">
+
+                </select>
+                </form>
+            </li>
+            <li>
+                <h3>Fecha Muestra</h3>
+                <input type="date" id="fechaMod"><label for="fechaMod"></label> </li>
+            <li>
+                <h3>Valor de la muestra</h3>
+                <input type="text" id="valMod"><label for="valMod"></label></li>
+        </ul>
+        <button onclick="modificarmuestra()">Modificar</button>
+    </div>
+    <div id="compartir-muestra" class="seccion">
+        <h2>Modificar Muestra</h2>
+        <select id="lista-compartir-muestra">
+            
+        </select>
+        <button onclick="compartirMuestra()">Compartir</button>
+    </div>
+</body>
+</html>

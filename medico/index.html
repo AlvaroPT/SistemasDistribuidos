@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf8">
+    <title>Página Médico</title>
+    <script src="main.js"></script>
+    <script src="rest.js"></script>
+    <style>
+        .seccion{display: none;}
+        .activa{display: block;}
+    </style>
+    
+</head>
+
+
+<body>
+    <h1 id="aplicacion">App Médicos</h1>
+    <div id="login" class="seccion activa">
+        <h2>Login</h2>
+        <p class="bienvenida"></p>
+        <div>Usuario: <input id="usuario" /></div> 
+        <div>Contraseña: <input id="password"/></div>
+        <button onclick="entrar()">Entrar</button> 
+    </div>
+    <div id="menu-principal" class="seccion">
+        <h2 id="bienvenida">Menu principal</h2>
+        <dl id="lista-pacientes"></dl>
+        <button onclick="ircrearpaciente()">Crear Paciente</button>
+        <button onclick="cambiarSeccion()"> Datos de usuario</button>
+        <button onclick="salir()"> Salir </button>
+    </div>
+    <div id="datos-usuarios" class="seccion">
+        <h2>Datos del usuario</h2>
+        <button onclick="cambiarSeccion('menu-principal')"> Datos de usuario</button>
+        <button onclick="salir()"> Salir </button>
+    </div>
+    <div id="crear-paciente" class="seccion">
+        <h2>Gestión de pacientes</h2>
+        <form>
+            <fieldset>
+                <legend>Crear nuevo paciente</legend>
+                <p>
+                    <input id="nombre_paciente">
+                    <label for="nombre">Nombre</label>
+                </p>
+                <p>
+                    <input id="fecha_nacimiento" type="date">
+                    <label for="fecha_nacimiento">Fecha nacimiento</label>
+                </p>
+                <p>
+                    <select id="genero">
+                        <option value="Masculino">Masculino</option>
+                        <option value="Femenino">Femenino</option>
+                    </select>
+                    <label for="genero">Género</label>
+                </p>
+                <p>
+                    <select id="lista-medicos">
+
+                    </select>
+                </p>
+                <p>
+                    <input id="codigo_acceso">
+                    <label for="codigo_acceso">Código de acceso</label>
+                </p>
+                <p>
+                    <input id="observaciones">
+                    <label for="observaciones">Observaciones</label>
+                </p>
+                
+            </fieldset>
+        </form>
+        <button onclick="crearpaciente()">Crear paciente</button>
+        <button onclick="cambiarSeccion('menu-principal')"> Datos de usuario</button>
+        <button onclick="salir()"> Salir </button>
+    </div>
+    <div id="modificar-paciente" class="seccion">
+        <h2>Expediente del paciente</h2>
+        <dl id="muestras-paciente"></dl>
+        <form>
+            <fieldset>
+                <legend>Modificar los Datos</legend>
+                <p>
+                    <input id="nuevo_nombre">
+                    <label for="nuevo_nombre">Nombre</label>
+                </p>
+                <p>
+                    <input id="nueva_fecha_nacimiento" type="date">
+                    <label for="nueva_fecha_nacimiento">Fecha nacimiento</label>
+                </p>
+                <p>
+                    <select id="nuevo_genero">
+                        <option value="Masculino">Masculino</option>
+                        <option value="Femenino">Femenino</option>
+                    </select>
+                    <label for="nuevo_genero">Género</label>
+                </p>
+                <p>
+                    <input id="nuevo_medico">
+                    <label for="nuevo_medico">Médico responsable</label>
+                </p>
+                <p>
+                    <input id="nuevo_codigo_acceso">
+                    <label for="nuevo_codigo_acceso">Código de acceso</label>
+                </p>
+                <p>
+                    <input id="nuevo_observaciones">
+                    <label for="nuevo_observaciones">Observaciones</label>
+                </p>
+                
+            </fieldset>
+        </form>
+        <button onclick="modificarPaciente()">Modificar</button>
+        <button onclick="cambiarSeccion('menu-principal')"> Menu principal</button>
+        <button onclick="salir()"> Salir </button>
+    </div>
+</body>
+
+</html>
