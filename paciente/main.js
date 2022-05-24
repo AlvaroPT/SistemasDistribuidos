@@ -8,8 +8,8 @@ var listadoVariables = app.procedure("listadoVariables");//Hecho
 var eliminarMuestra = app.procedure("eliminarMuestra");//Hecho
 var modificarMuestra = app.procedure("modificarMuestra");//Hecho
 var anyadirMuestra = app.procedure("anyadirMuestra");//Hecho
-
-
+var eliminarVariable = app.procedure("eliminarVariable");
+var reasignarMuestras = app.procedure("reasignarMuestras");
 
 
 var seccionActual = "loginPaciente";
@@ -50,7 +50,6 @@ function entrar(){
             switch(msg.origen){
                 case "sollistapaciente":
                     listaPacientesMedico = msg.mensaje;
-                    
                     break;
                 case "compartirparticular":
                     alert(msg.mensaje);
@@ -61,6 +60,14 @@ function entrar(){
     })   
      
     
+}
+//Mensaje de bienvenida para el paciente
+function bienvenida(pacienteActual){
+    var mensaje_bienvenida = document.getElementById("bienvenida_paciente");
+    mensaje_bienvenida.innerHTML ="";
+    mensaje_bienvenida.innerHTML += '<h2>Bienvenid@: </h2><p>'+pacienteActual.nombre+'</p>';
+    mensaje_bienvenida.innerHTML += '<h2>Su médic@ es: </h2><p>'+medico.nombre+'</p>';
+    mensaje_bienvenida.innerHTML += '<h2>Observaciones: </h2><p>'+pacienteActual.observaciones+'</p>';
 }
 
 //Funcion que nos recarga la pagina del paciente
@@ -81,6 +88,7 @@ function recargar(paciente){
     formanyadirmuestras();
     
 }
+//SECCIONES
 //Compartir muestras
 function ircompartirmuestra(muestra){
     muestraActual = muestra;
@@ -94,65 +102,32 @@ function ircompartirmuestra(muestra){
     }
     cambiarSeccion("compartir-muestra");
 }
-
-function compartirMuestra(){
-    for(i in variables){
-        if(variables[i].id == muestraActual){
-            var nomMuestra = variables[i].nombre;
-        }
-    }
-    for(i in muestras){
-        if(muestras[i].id == muestraActual){
-            fechaMuestra = muestras[i].fecha;
-            valorMuestra = muestras[i].valor;
-        }
-    }
-    var quiencompartir = document.getElementById("lista-compartir-muestra").value;
-    console.log(quiencompartir);
-    if(quiencompartir == "mimedico"){
-        console.log(medico.id);
-        conexion.send(JSON.stringify({ origen: "compartirmimedico", quiencompartir: medico.id, nomMuestra: nomMuestra, fechaMuestra: fechaMuestra, valorMuestra: valorMuestra, nomPaciente: pacienteActual.nombre }));
-    }
-    if(quiencompartir == "todospacientes"){
-        conexion.send(JSON.stringify({ origen: "compartirtodospacientes", nomMuestra: nomMuestra, fechaMuestra: fechaMuestra, valorMuestra: valorMuestra, nomPaciente: pacienteActual.nombre }));
-    }
-    else{
-        conexion.send(JSON.stringify({ origen: "compartirparticular", quiencompartir: quiencompartir, nomMuestra: nomMuestra, fechaMuestra: fechaMuestra, valorMuestra: valorMuestra, nomPaciente: pacienteActual.nombre }));
-    }
-    recargar(pacienteActual);
-}
-    //Mensaje de bienvenida para el paciente
-function bienvenida(pacienteActual){
-    var mensaje_bienvenida = document.getElementById("bienvenida_paciente");
-    mensaje_bienvenida.innerHTML ="";
-    mensaje_bienvenida.innerHTML += '<p>Bienvenid@: '+pacienteActual.nombre+'</p>';
-    mensaje_bienvenida.innerHTML += '<p>Su médic@ es: '+medico.nombre+'</p>';
-    mensaje_bienvenida.innerHTML += '<p>Observaciones: '+pacienteActual.observaciones+'</p>';
-}
-    //Pequeño formulario para añadir nuevas muestras
+//Pequeño formulario para añadir nuevas muestras
 function formanyadirmuestras(){
     var anyadirmuestra = document.getElementById("anyadirmuestra");
     anyadirmuestra.innerHTML = "";
-    anyadirmuestra.innerHTML += "<h2>Añadir Muestras</h2>";
+    anyadirmuestra.innerHTML += "<h2 class='titulo-seccion'>Añadir Muestras</h2>";
     anyadirmuestra.innerHTML += "<form id='formulariomuestras'></form>";
     var formuestras = document.getElementById("formulariomuestras");
-    formuestras.innerHTML += "<select id='anyadirmuestras'></select>";
+    formuestras.innerHTML += "<label for='anyadirmuestras'>Variable</label>";
+    formuestras.innerHTML += "<select id='anyadirmuestras' name='anyadirmuestras'></select>";
     var desplegable = document.getElementById("anyadirmuestras");
     for(i in variables){
         desplegable.innerHTML += "<option>"+variables[i].nombre+"</option>"
     }
     
     formuestras.innerHTML += "<label for='valormuestra'>Valor</label>";
-    formuestras.innerHTML += "<input type='text' id='valormuestra'>";
+    formuestras.innerHTML += "<input type='text' id='valormuestra' name='valormuestra'>";
     //La fecha por defecto es la actual.
-    formuestras.innerHTML += "<input type='date' id='fechamuestra'>";
+    formuestras.innerHTML += "<label for='fechamuestra'>Fecha</label>";
+    formuestras.innerHTML += "<input type='date' id='fechamuestra' name='fechamuestra'>";
     formuestras.innerHTML += "<button onclick='anyadirmuestra()'>Añadir</button>";
 }
 //Apartado donde aparecen las muestras del paciente.
 function mostrarMuestras(){
     var mismuestras = document.getElementById("mismuestras");
     mismuestras.innerHTML = "";
-    mismuestras.innerHTML += '<h2>Tus muestras</h2>';
+    mismuestras.innerHTML += "<h2 class='titulo-seccion'>Tus muestras</h2>";
     
     for(i in muestras){
         idvar = muestras[i].variable;
@@ -164,60 +139,26 @@ function mostrarMuestras(){
         mismuestras.innerHTML += "<dt>Variable: "+nomMuestra+"</dt>";
         mismuestras.innerHTML += "<dd>Valor: "+muestras[i].valor+"</dd>";
         mismuestras.innerHTML += "<dd>Fecha: "+muestras[i].fecha+"</dd>";
-        mismuestras.innerHTML += "<button onclick=eliminarmuestra("+muestras[i].id+")>Eliminar</button>";
         mismuestras.innerHTML += "<button onclick=irmodmuestra("+muestras[i].id+")>Modificar</button>";
         mismuestras.innerHTML += "<button onclick='ircompartirmuestra("+muestras[i].id+")'>Compartir</button>";
+        mismuestras.innerHTML += "<button onclick=eliminarmuestra("+muestras[i].id+") class='boton-eliminar'>Eliminar</button>";
     }
 }
 //Selector que nos permite filtrar por variable.
 function mostrarVariables(){
     var filtromuestras = document.getElementById("filtromuestras");
     filtromuestras.innerHTML = "";
-    filtromuestras.innerHTML += '<h2>Filtro de Muestras</h2>';
-    filtromuestras.innerHTML += '<button onclick=muestrasfiltradas()>Filtrar</button>';
+    filtromuestras.innerHTML += '<h2 class="titulo-seccion">Filtro de Muestras</h2>';
     filtromuestras.innerHTML += '<select id="listavariables"></select>';
     var desplegable = document.getElementById("listavariables");
+    desplegable.innerHTML += '<option value="todas">Todas las muestras</option>';
     for(i in variables){
-        desplegable.innerHTML += '<option>'+variables[i].nombre+'</option>';
+        desplegable.innerHTML += '<option value='+variables[i].id+'>'+variables[i].nombre+'</option>';
     }
-
+    filtromuestras.innerHTML += '<button onclick=muestrasfiltradas()>Filtrar</button>';
+    filtromuestras.innerHTML += '<button onclick=reasignarmuestras()>Reasignar</button>';
+    filtromuestras.innerHTML += "<button onclick=eliminarvariable() class='boton-eliminar'>Eliminar</button>";
 }
-
-//Añade una muestra nueva con los valores introducidos por el paciente
-function anyadirmuestra(){
-    var variablenueva = document.getElementById("anyadirmuestras").value;
-    var valornueva = document.getElementById("valormuestra").value;
-    var fechanueva = document.getElementById("fechamuestra").value;
-    anyadirMuestra(pacienteActual.id, variablenueva, valornueva, fechanueva);
-    recargar(pacienteActual);
-}
-
-//Muestra las muestras que son filtradas por la variable
-function muestrasfiltradas(){
-    var selecionada = document.getElementById("listavariables").value;
-    var mismuestras = document.getElementById("mismuestras");
-    mismuestras.innerHTML = "";
-    mismuestras.innerHTML += '<h2>Tus muestras</h2>';
-    for(i in muestras){
-        idvar = muestras[i].variable;
-        for(e in variables){
-            if(variables[e].id == muestras[i].variable){
-                var nomMuestra = variables[e].nombre;
-            }
-            
-        }
-        if(nomMuestra == selecionada){
-            mismuestras.innerHTML += "<dt>Variable: "+nomMuestra+"</dt>";
-            mismuestras.innerHTML += "<dd>Valor: "+muestras[i].valor+"</dd>";
-            mismuestras.innerHTML += "<dd>Fecha: "+muestras[i].fecha+"</dd>";
-            mismuestras.innerHTML += "<button onclick=eliminarmuestra("+muestras[i].id+")>Eliminar</button>";
-            mismuestras.innerHTML += "<button onclick=irmodmuestra("+muestras[i].id+")>Modificar</button>";
-            mismuestras.innerHTML += "<button onclick='ircompartirmuestra("+muestras[i].id+")'>Compartir</button>";
-        }
-        
-    }
-}
-
 function irmodmuestra(muestra){
     muestraActual=muestra;
     console.log(muestra);
@@ -232,21 +173,6 @@ function irmodmuestra(muestra){
 function salir(){
     cambiarSeccion("loginPaciente");
 }
-
-function modificarmuestra(){
-    var nuevaVar = document.getElementById("varMod").value;
-    console.log(nuevaVar);
-    var nuevaFecha = document.getElementById("fechaMod").value;
-    var nuevaVal = document.getElementById("valMod").value;
-    modificarMuestra(muestraActual, nuevaVar, nuevaFecha, nuevaVal, function(retorno){
-        if(retorno == true){
-            recargar(pacienteActual); 
-            cambiarSeccion("menu-paciente");  
-        }
-    })
-      
-}
-
 function mostrarPacientes(pacientes){
     console.log("Pintamos los pacientes");
     //La utilizamos para generar el código HTML
@@ -258,6 +184,8 @@ function mostrarPacientes(pacientes){
     document.getElementById("listaPacientes").innerHTML=codigoHTML;
 }
 
+
+//PACIENTES
 function anyadir(){
     //Obtienen los valores introducidos en los input de HTML
     var nom=document.getElementById("nombre").value;
@@ -283,8 +211,33 @@ function eliminar(id){
     }
     recargar();
 }
-
-
+//MUESTRAS
+function compartirMuestra(){
+    for(i in variables){
+        if(variables[i].id == muestraActual){
+            var nomMuestra = variables[i].nombre;
+        }
+    }
+    for(i in muestras){
+        if(muestras[i].id == muestraActual){
+            fechaMuestra = muestras[i].fecha;
+            valorMuestra = muestras[i].valor;
+        }
+    }
+    var quiencompartir = document.getElementById("lista-compartir-muestra").value;
+    console.log(quiencompartir);
+    if(quiencompartir == "mimedico"){
+        console.log(medico.id);
+        conexion.send(JSON.stringify({ origen: "compartirmimedico", quiencompartir: medico.id, nomMuestra: nomMuestra, fechaMuestra: fechaMuestra, valorMuestra: valorMuestra, nomPaciente: pacienteActual.nombre }));
+    }
+    if(quiencompartir == "todospacientes"){
+        conexion.send(JSON.stringify({ origen: "compartirtodospacientes", nomMuestra: nomMuestra, fechaMuestra: fechaMuestra, valorMuestra: valorMuestra, nomPaciente: pacienteActual.nombre , idPaciente: pacienteActual.id, idMedico: medico.id}));
+    }
+    else{
+        conexion.send(JSON.stringify({ origen: "compartirparticular", quiencompartir: quiencompartir, nomMuestra: nomMuestra, fechaMuestra: fechaMuestra, valorMuestra: valorMuestra, nomPaciente: pacienteActual.nombre }));
+    }
+    recargar(pacienteActual);
+}
 function eliminarmuestra(idMuestra){
     eliminarMuestra(idMuestra, function(retorno){
         if(retorno==true){
@@ -295,4 +248,79 @@ function eliminarmuestra(idMuestra){
         }
     })    
 }
+
+
+
+//BOTONES
+function reasignarmuestras(){
+    var idVariable = document.getElementById("listavariables").value;
+    reasignarMuestras(pacienteActual.id, idVariable);
+    console.log(idVariable);
+    console.log(pacienteActual.id);
+    recargar(pacienteActual);
+}
+
+function eliminarvariable(){
+    var varelim = document.getElementById("listavariables").value;
+    eliminarVariable(varelim,pacienteActual.id);
+    recargar();
+}
+
+//Añade una muestra nueva con los valores introducidos por el paciente
+function anyadirmuestra(){
+    var variablenueva = document.getElementById("anyadirmuestras").value;
+    var valornueva = document.getElementById("valormuestra").value;
+    var fechanueva = document.getElementById("fechamuestra").value;
+    anyadirMuestra(pacienteActual.id, variablenueva, valornueva, fechanueva);
+    recargar(pacienteActual);
+}
+
+//Muestra las muestras que son filtradas por la variable
+function muestrasfiltradas(){
+    var selecionada = document.getElementById("listavariables").value;
+    var mismuestras = document.getElementById("mismuestras");
+    mismuestras.innerHTML = "";
+    mismuestras.innerHTML += '<h2 class="titulo-seccion">Tus muestras</h2>';
+    for(i in muestras){
+        idvar = muestras[i].variable;
+        for(e in variables){
+            if(variables[e].id == muestras[i].variable){
+                var nomMuestra = variables[e].nombre;
+            }
+            
+        }
+        if(nomMuestra == selecionada){
+            mismuestras.innerHTML += "<dt>Variable: "+nomMuestra+"</dt>";
+            mismuestras.innerHTML += "<dd>Valor: "+muestras[i].valor+"</dd>";
+            mismuestras.innerHTML += "<dd>Fecha: "+muestras[i].fecha+"</dd>";
+            mismuestras.innerHTML += "<button onclick=irmodmuestra("+muestras[i].id+")>Modificar</button>";
+            mismuestras.innerHTML += "<button onclick='ircompartirmuestra("+muestras[i].id+")'>Compartir</button>";
+            mismuestras.innerHTML += "<button onclick=eliminarmuestra("+muestras[i].id+") class='boton-eliminar'>Eliminar</button>";
+        }
+        if(selecionada == "todas"){
+            recargar(pacienteActual);
+        }
+        
+    }
+}
+function modificarmuestra(){
+    var nuevaVar = document.getElementById("varMod").value;
+    console.log(nuevaVar);
+    var nuevaFecha = document.getElementById("fechaMod").value;
+    var nuevaVal = document.getElementById("valMod").value;
+    modificarMuestra(muestraActual, nuevaVar, nuevaFecha, nuevaVal, function(retorno){
+        if(retorno == true){
+            recargar(pacienteActual); 
+            cambiarSeccion("menu-paciente");  
+        }
+    })
+      
+}
+
+
+
+
+
+
+
 

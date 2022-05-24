@@ -18,6 +18,16 @@ function loginPaciente(codigo){
     return null;
 }
 
+function reasignarMuestras(idPaciente, idVariable){
+    for(i in muestras){
+        if(muestras[i].paciente == idPaciente){
+            muestras[i].variable = idVariable;
+        }
+    }
+    console.log(muestras);
+    return true;
+}
+
 
 function datosMedico(idMedico){
     for(i in medicos){
@@ -72,7 +82,18 @@ function anyadir_asincrono(){
     })
 }
 
+function eliminarVariable(varelim,idPaciente){
+    console.log(idPaciente);
+    //variables.splice(variables.id == varelim, 1);
+    var nuevasMuestras = [];
+    for(i in muestras){
+        if(muestras[i].variable != varelim || muestras[i].paciente != idPaciente){
+            nuevasMuestras.push(muestras[i]);
+        }
+    }
+    console.log(nuevasMuestras);
 
+}
 
 function eliminarPaciente(id){
     for(var i=0; i<pacientes.length; i++){
@@ -167,4 +188,6 @@ app.register(listadoVariables);
 app.register(eliminarMuestra);
 app.register(modificarMuestra);
 app.register(anyadirMuestra);
+app.register(eliminarVariable);
+app.register(reasignarMuestras);
 

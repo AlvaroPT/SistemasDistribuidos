@@ -21,7 +21,7 @@ httpServer.listen(puerto, function () {
 });
 
 var conexiones = []; // Todas las conexiones (clientes) de mi servidor
-var compartirlista = [];
+
 
 wsServer.on("request", function (request) { // este callback se ejecuta cuando llega una nueva conexión de un cliente
 	var connection = request.accept("conexion", request.origin); // aceptar conexión
@@ -36,15 +36,16 @@ wsServer.on("request", function (request) { // este callback se ejecuta cuando l
 				//listaPacientes(connection); // enviar la lista de pacientes al nuevo cliente
 				case "connectmedico":
 					//Verificamos que el servidor y medico estan conectados
-					conexion.id = msg.id;
+					conexion.idMedico = msg.idMedico;
 					conexion.quien = 'medico';
-					console.log(conexion.id);
-					console.log(conexion.quien);
+					conexion.idPaciente = "";
+				
 					break;
 				case "sollistapacientes":
-					conexion.id=msg.idPaciente;
-					conexion.quien= "paciente";
-					console.log(msg);
+					var compartirlista = [];
+					conexion.idPaciente = msg.idPaciente;
+					conexion.quien = "paciente";
+					conexion.idMedico = msg.idMedico;
 					for(i in pacientes){
 						if(msg.idMedico == pacientes[i].medico){
 							compartirlista.push(pacientes[i]);
@@ -55,7 +56,7 @@ wsServer.on("request", function (request) { // este callback se ejecuta cuando l
 				case "compartirparticular":
 					console.log("Compartir a paciente con id:"+msg.quiencompartir);
 					for(i in conexiones){
-						if(conexiones[i].id == msg.quiencompartir && conexiones[i].quien == "paciente"){
+						if(conexiones[i].idPaciente == msg.quiencompartir && conexiones[i].quien == "paciente"){
 							console.log("Se envia alerta la paciente con id:"+msg.quiencompartir);
 							conexiones[i].connection.sendUTF(JSON.stringify({origen: "compartirparticular",mensaje: "El paciente "+ msg.nomPaciente +" ha compartido contigo la muestra: "+ msg.nomMuestra+" con valor de: "+msg.valorMuestra+" y fecha de: "+ msg.fechaMuestra}));
 						}
@@ -63,14 +64,14 @@ wsServer.on("request", function (request) { // este callback se ejecuta cuando l
 					break;
 				case "compartirmimedico":
 					for(i in conexiones){
-						if(conexiones[i].id == msg.quiencompartir && conexiones[i].quien == "medico"){
+						if(conexiones[i].idMedico == msg.quiencompartir && conexiones[i].quien == "medico"){
 							conexiones[i].connection.sendUTF(JSON.stringify({origen: "compartirmimedico",mensaje: "El paciente "+ msg.nomPaciente +" ha compartido contigo la muestra: "+ msg.nomMuestra+" con valor de: "+msg.valorMuestra+" y fecha de: "+ msg.fechaMuestra}));
 						}
 					}
 					break;
 				case "compartirtodospacientes":
 					for(i in conexiones){
-						if(conexiones[i].quien == "paciente"){
+						if(conexiones[i].quien == "paciente" && conexiones[i].idPaciente != msg.idPaciente && conexiones[i].idMedico==msg.idMedico){
 							conexiones[i].connection.sendUTF(JSON.stringify({origen: "compartirparticular",mensaje: "El paciente "+ msg.nomPaciente +" ha compartido contigo la muestra: "+ msg.nomMuestra+" con valor de: "+msg.valorMuestra+" y fecha de: "+ msg.fechaMuestra}));
 						}
 					}

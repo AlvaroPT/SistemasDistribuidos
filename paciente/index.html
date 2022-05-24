@@ -4,13 +4,51 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cliente</title>
+    <title>Página Paciente</title>
     <script src="rest.js"></script>  
     <script src="rpc.js"></script>   
     <script src="main.js"></script> 
     <style>
-        .seccion{display: none;}
-        .activa{display: block;}
+            html {
+                line-height: 1.15;
+                -webkit-text-size-adjust: 100%;}
+            body{font-family: sans-serif;}
+            *{margin: 0;
+                box-sizing: border-box;
+                padding:  0.5%;}
+            body {margin: 0;}
+            button{
+                display: inline-block;
+                background-color: #2196f3;
+                justify-self: center;
+                color: #fff;
+                padding: 7px 21px;
+                border-radius: 10px;}
+            select{font-size: large;}
+            div{text-transform: uppercase;}
+            h1{
+                background-color: #003785;
+                color: #fff;
+                border-radius: 10px;
+                border: 5px ridge #0089e4;}
+            dt{background-color: #81c9fa;
+                border-style:groove;
+                border-color: #0089e4;
+                border-radius: 8px;}
+            .seccion{display: none;}
+            .activa{display: block;}
+            .titulo-seccion{
+                background-color: #1465bb;
+                color: #fff;
+                border: 3px ridge #0089e4;
+                border-radius: 10px;}
+            .boton-salir{background-color: rgb(192, 44, 73);
+            margin-left: 45%;}
+            .boton-eliminar{background-color: rgb(192, 44, 73);}
+            .menu-paciente{
+                margin-left: 10px;
+                margin-right: 5%;}
+
     </style>
     
 
@@ -19,23 +57,24 @@
     <h1 id="aplicacion">App Paciente</h1>
     <div id="loginPaciente" class="seccion activa">
         <h2>Login</h2>
-        <p class="bienvenida"></p>
-        <div>Codigo de acceso: <input id="codigo_acceso"/></div>
+        <label>Codigo de acceso: </label>
+        <input id="codigo_acceso" type="password"/>
         <button onclick="entrar()">Entrar</button> 
     </div>
-    <div id="menu-paciente" class="seccion">
+    <div id="menu-paciente" class="seccion menu-paciente">
+        
         <div id="bienvenida_paciente"></div>
         <div id="anyadirmuestra"></div>
         <div id="mismuestras"></div>
         <div id="filtromuestras"></div>
     </br>
-        <div><button onclick="salir()">Salir</button></div>
+        <div><button onclick="salir()" class="boton-salir">Salir</button></div>
     </div>
     <div id="modificar-muestra" class="seccion">
-        <h2>Modificar muestra</h2>
+        <h2 class='titulo-seccion'>Modificar muestra</h2>
         <ul>
             <li>
-                <h3>Variable Muestra</h3>
+                <label>Muestra:</label>
                 <form>
                 <select id="varMod">
 
@@ -43,20 +82,22 @@
                 </form>
             </li>
             <li>
-                <h3>Fecha Muestra</h3>
+                <label>Fecha Muestra:</label>
                 <input type="date" id="fechaMod"><label for="fechaMod"></label> </li>
             <li>
-                <h3>Valor de la muestra</h3>
+                <label>Valor de la muestra:</label>
                 <input type="text" id="valMod"><label for="valMod"></label></li>
         </ul>
         <button onclick="modificarmuestra()">Modificar</button>
+        <button onclick="recargar(pacienteActual)">Datos Paciente</button>
+        <div><button onclick="salir()" class="boton-salir">Salir</button></div>
     </div>
     <div id="compartir-muestra" class="seccion">
-        <h2>Modificar Muestra</h2>
-        <select id="lista-compartir-muestra">
-            
-        </select>
+        <h2 class='titulo-seccion'>Compartir Muestra</h2>
+        <select id="lista-compartir-muestra"></select>
         <button onclick="compartirMuestra()">Compartir</button>
+        <button onclick="recargar(pacienteActual)">Datos Paciente</button>
+        <div><button onclick="salir()" class="boton-salir">Salir</button></div>
     </div>
 </body>
 </html>

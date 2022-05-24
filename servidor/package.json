@@ -3,5 +3,18 @@
     "cors": "^2.8.5",
     "express": "^4.17.3",
     "websocket": "^1.0.34"
-  }
+  },
+  "name": "servidor",
+  "version": "1.0.0",
+  "main": "servidor.js",
+  "devDependencies": {
+    "nodemon": "^2.0.16"
+  },
+  "scripts": {
+    "dev": "nodemon servidor.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }

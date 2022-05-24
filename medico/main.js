@@ -10,16 +10,7 @@ var idPaciente = "";
 var seccionActual = "login";
 var varPaciente = [];
 
-//Función para mostrar las distintas partes de la pagina dependiendo de las acciones del usuario.
-//Es una manera de tener toda la pagina en un solo html.
-function cambiarSeccion(seccion){
-    document.getElementById(seccionActual).classList.remove("activa");
-    document.getElementById(seccion).classList.add("activa");
-    seccionActual=seccion;
-}
-
 //Boton para entrar en el sistema
-
 function entrar(){
     //Guardamos los datos introducidos por el medico para comprobar que son ciertos
     var medico = {
@@ -34,25 +25,31 @@ function entrar(){
         if(estado==201){
             idMedico = res;
             console.log(idMedico);
-            bienvenida(idMedico);           
-            mostrarPaciente(idMedico);   
-            cambiarSeccion("menu-principal");
+            
             conexion = new WebSocket('ws://localhost:4444', "conexion");
             conexion.addEventListener("open", function (event){  
-            conexion.send(JSON.stringify({ origen: "connectmedico", id: idMedico }));
+            conexion.send(JSON.stringify({ origen: "connectmedico", idMedico: idMedico}));
             conexion.addEventListener('message', function (event) {
                 console.log("Mensaje del servidor:", event.data);
                 var msg = JSON.parse(event.data);
                 switch(msg.origen){
                     case "compartirmimedico":
                         alert(msg.mensaje);
-                        entrar();
+                        cargar();
                         break;
                 }
             });
+            cargar();
         })
         }
     })
+}
+
+//Recarga la página
+function cargar(){
+    bienvenida(idMedico);           
+    mostrarPaciente(idMedico);   
+    cambiarSeccion("menu-principal");
 }
 
 //Crea un mensaje con el nombre del medico asociado a la id del login.
@@ -68,27 +65,7 @@ function bienvenida(idMedico){
         }
     })
 }
-//Mostrar pacientes asignados
-
-function mostrarPaciente(id){
-    rest.get("/api/medico/"+id+"/pacientes", function(estado, respuesta){
-        if(estado==200){
-            var itemlista = document.getElementById("lista-pacientes");
-            itemlista.innerHTML = "";
-            for(i in respuesta){  
-                itemlista.innerHTML += "<dt>ID del paciente: "+respuesta[i].id+"</dt>";
-                itemlista.innerHTML += "<dd>Nombre: "+respuesta[i].nombre+"</dd>";
-                itemlista.innerHTML += "<dd>Fecha de nacimiento: "+respuesta[i].fecha_nacimiento+"</dd>";
-                itemlista.innerHTML += "<dd>Sexo: "+respuesta[i].genero+"</dd>";
-                itemlista.innerHTML += "<dd>Medico responsable: "+respuesta[i].medico+"</dd>";
-                itemlista.innerHTML += "<dd>Codigo de acceso: "+respuesta[i].codigo_acceso+"</dd>";
-                itemlista.innerHTML += "<dd>Observaciones: "+respuesta[i].observaciones+"</dd>";
-                itemlista.innerHTML += "<button onclick='irmodificarpaciente("+respuesta[i].id+")'>Modificar paciente</button>";
-            }
-        }
-    })
-}
-
+//PACIENTES
 //Devuelve un array con la informacion de un paciente
 function datosPaciente(id){
     rest.get("/api/paciente/"+id, function(estado, paciente){
@@ -109,22 +86,27 @@ function datosPaciente(id){
     //Falta ponerlo en el documento
     })
 }
-
-//Cambia  a la seccion de crear un paciente.
-function ircrearpaciente(){
-    rest.get("/api/medico/"+idMedico+"/listamedicos", function(estado, respuesta){
+//Mostrar pacientes asignados
+function mostrarPaciente(id){
+    rest.get("/api/medico/"+id+"/pacientes", function(estado, respuesta){
+        //Respuesta hace referencia a la lista de pacientes
         if(estado==200){
-            var itemlista = document.getElementById("lista-medicos");
+            var itemlista = document.getElementById("lista-pacientes");
             itemlista.innerHTML = "";
             for(i in respuesta){  
-                console.log(respuesta[i]);
-                itemlista.innerHTML += "<option value="+respuesta[i].id+">"+respuesta[i].nombre+"</dt>";
+                itemlista.innerHTML += "<dt>ID del paciente: "+respuesta[i].id+"</dt>";
+                itemlista.innerHTML += "<dd>Nombre: "+respuesta[i].nombre+"</dd><button onclick=duplicarpaciente("+respuesta[i].id+")>Duplicar</button>";
+                itemlista.innerHTML += "<dd>Fecha de nacimiento: "+respuesta[i].fecha_nacimiento+"</dd>";
+                itemlista.innerHTML += "<dd>Sexo: "+respuesta[i].genero+"</dd>";
+                itemlista.innerHTML += "<dd>Medico responsable: "+respuesta[i].medico+"</dd>";
+                itemlista.innerHTML += "<dd>Codigo de acceso: "+respuesta[i].codigo_acceso+"</dd>";
+                itemlista.innerHTML += "<dd>Observaciones: "+respuesta[i].observaciones+"</dd>";
+                itemlista.innerHTML += "<button onclick='irmodificarpaciente("+respuesta[i].id+")'>Modificar paciente</button>";
+                itemlista.innerHTML += "<button onclick=eliminarpaciente("+respuesta[i].id+") class='boton-eliminar'>Eliminar</button>";
             }
         }
     })
-    cambiarSeccion("crear-paciente");
 }
-
 //Crea un nuevo paciente y despues lo muestra.
 function crearpaciente(){
     var paciente = {
@@ -146,15 +128,6 @@ function crearpaciente(){
         }
     })
 }
-//Cambia a la seccion de modificar paciente, cogiendo la id del paciente que se ha pulsado.
-function irmodificarpaciente(id){
-    cambiarSeccion("modificar-paciente");
-    idPaciente = id;
-    getmuestras(id);
-    getvariables();
-
-}
-
 //Modifica los datos del paciente con los valores introducidos y despues los muestra.
 function modificarPaciente(){
     paciente = {
@@ -178,15 +151,24 @@ function modificarPaciente(){
         }
     })
 }
-
-//Coge un array con todas las variables.
-function getvariables(){
-    rest.get("/api/variable", function(estado,respuesta){
-        console.log(respuesta);
-        varPaciente = respuesta;
+//Elimina al paciente 
+function eliminarpaciente(id){
+    rest.delete("/api/paciente/"+id, function(estado, respuesta){
+        console.log(id);
+        if(estado == 200){
+            cargar();
+        }
     })
 }
-
+//Duplicar Paciente
+function duplicarpaciente(idPaciente){
+    rest.post("/api/paciente/"+idPaciente+"/duplicar", function(estado,respuesta){
+        if(estado == 201){
+            cargar();
+        }
+    })
+}
+//MUESTRAS
 //Coge las muestras de un paciente
 function getmuestras(id){
     getvariables();
@@ -207,9 +189,53 @@ function getmuestras(id){
         }
     })
 }
+//VARIABLES
+//Coge un array con todas las variables.
+function getvariables(){
+    rest.get("/api/variable", function(estado,respuesta){
+        console.log(respuesta);
+        varPaciente = respuesta;
+    })
+}
+//SECCIONES
+//Función para mostrar las distintas partes de la pagina dependiendo de las acciones del usuario.
+//Es una manera de tener toda la pagina en un solo html.
+function cambiarSeccion(seccion){
+    document.getElementById(seccionActual).classList.remove("activa");
+    document.getElementById(seccion).classList.add("activa");
+    seccionActual=seccion;
+}
+//Vuelve al login
 function salir(){
     cambiarSeccion("login");
 
 }
+//Cambia  a la seccion de crear un paciente.
+function ircrearpaciente(){
+    rest.get("/api/medico/"+idMedico+"/listamedicos", function(estado, respuesta){
+        if(estado==200){
+            var itemlista = document.getElementById("lista-medicos");
+            itemlista.innerHTML = "";
+            for(i in respuesta){  
+                console.log(respuesta[i]);
+                itemlista.innerHTML += "<option value="+respuesta[i].id+">"+respuesta[i].nombre+"</dt>";
+            }
+        }
+    })
+    cambiarSeccion("crear-paciente");
+}
+//Cambia a la seccion de modificar paciente, cogiendo la id del paciente que se ha pulsado.
+function irmodificarpaciente(id){
+    cambiarSeccion("modificar-paciente");
+    idPaciente = id;
+    getmuestras(id);
+    getvariables();
+
+}
+
+
+
+
+
 
 
